@@ -1,1 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Optometria</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">O</div>
+            <div><strong>OPTOMETRIA</strong><span>Essencialy</span></div>
+        </div>
+        <nav>
+            <button class="menu-item active" data-tela="inicio" onclick="mostrarTela('inicio')">⌂ <span>Início</span></button>
+            <button class="menu-item" data-tela="pacientes" onclick="mostrarTela('pacientes')">👤 <span>Clientes</span></button>
+            <button class="menu-item" data-tela="atendimentos" onclick="mostrarTela('atendimentos')">👁 <span>Exames</span></button>
+            <button class="menu-item" data-tela="configuracoes" onclick="mostrarTela('configuracoes')">⚙ <span>Configurações</span></button>
+        </nav>
+        <div class="sidebar-footer">Sistema online<br><small>Dados salvos no banco (Supabase)</small></div>
+    </aside>
 
+    <nav class="mobile-nav">
+        <button class="menu-item active" data-tela="inicio" onclick="mostrarTela('inicio')">⌂<span>Início</span></button>
+        <button class="menu-item" data-tela="pacientes" onclick="mostrarTela('pacientes')">👤<span>Clientes</span></button>
+        <button class="menu-item" data-tela="atendimentos" onclick="mostrarTela('atendimentos')">👁<span>Exames</span></button>
+        <button class="menu-item" data-tela="configuracoes" onclick="mostrarTela('configuracoes')">⚙<span>Config.</span></button>
+    </nav>
+
+    <main class="main">
+        <section id="telaInicio" class="screen">
+            <header class="header">
+                <div><h1>Olá!</h1><p>Bem-vindo ao sistema de optometria.</p></div>
+                <button class="btn-primary" onclick="novoPaciente()">＋ Novo cliente</button>
+            </header>
+            <section class="cards">
+                <div class="card"><div class="card-icon">👥</div><div><span>Total de clientes</span><strong id="totalPacientes">0</strong></div></div>
+                <div class="card"><div class="card-icon">📅</div><div><span>Cadastrados hoje</span><strong id="cadastradosHoje">0</strong></div></div>
+                <div class="card"><div class="card-icon">👁</div><div><span>Com exame registrado</span><strong id="comExame">0</strong></div></div>
+            </section>
+            <section class="panel">
+                <div class="section-header">
+                    <div><h2>Clientes recentes</h2><p>Últimos clientes cadastrados.</p></div>
+                    <div class="search">⌕<input id="pesquisaInicio" placeholder="Pesquisar..." oninput="pesquisarInicio()"></div>
+                </div>
+                <div id="listaPacientesInicio" class="patient-list"></div>
+            </section>
+        </section>
+
+        <section id="telaPacientes" class="screen hidden">
+            <header class="header">
+                <div><h1>Clientes</h1><p>Cadastro completo conforme a tabela tblCliente.</p></div>
+                <button class="btn-primary" onclick="novoPaciente()">＋ Novo cliente</button>
+            </header>
+            <section class="panel">
+                <div class="section-header">
+                    <div><h2>Lista de clientes</h2><p>Pesquise por nome, CPF, telefone ou cidade.</p></div>
+                    <div class="search">⌕<input id="pesquisaPacientes" placeholder="Pesquisar..." oninput="pesquisarPacientes()"></div>
+                </div>
+                <div id="listaPacientes" class="patient-list"></div>
+            </section>
+        </section>
+
+        <section id="telaAtendimentos" class="screen hidden">
+            <header class="header">
+                <div><h1>Exames</h1><p>Acesso rápido aos exames cadastrados.</p></div>
+            </header>
+            <section class="panel">
+                <div id="listaExames" class="exam-list"></div>
+            </section>
+        </section>
+
+        <section id="telaConfiguracoes" class="screen hidden">
+            <header class="header"><div><h1>Configurações</h1><p>Opções do sistema local.</p></div></header>
+            <section class="panel settings">
+                <h2>Armazenamento</h2>
+                <p>Os dados desta versão ficam salvos em um banco de dados online (Supabase), acessível de qualquer computador ou celular conectado.</p>
+                <button class="btn-secondary" onclick="exportarDados()">Exportar backup JSON</button>
+                <label class="file-button btn-secondary">Importar backup JSON<input type="file" accept=".json" onchange="importarDados(event)" hidden></label>
+                <button class="btn-danger" onclick="limparTodosDados()">Apagar todos os dados</button>
+            </section>
+        </section>
+    </main>
+</div>
+
+<!-- MODAL / FICHA COMPLETA -->
+<div id="modal" class="modal">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <div><h2 id="modalTitulo">Novo cliente</h2><p>Ficha completa do cliente</p></div>
+            <button class="close" onclick="fecharModal()">×</button>
+        </div>
+
+        <form id="formPaciente" onsubmit="salvarPaciente(event)">
+            <input type="hidden" id="IdCliente">
+
+            <div class="tabs">
+                <button type="button" class="tab active" onclick="abrirAba('dados')">Dados pessoais</button>
+                <button type="button" class="tab" onclick="abrirAba('anamnese')">Anamnese</button>
+                <button type="button" class="tab" onclick="abrirAba('historico')">Histórico</button>
+                <button type="button" class="tab" onclick="abrirAba('anterior')">Refração anterior</button>
+                <button type="button" class="tab" onclick="abrirAba('atual')">Refração atual</button>
+                <button type="button" class="tab" onclick="abrirAba('acuidade')">Acuidade / Bicromático</button>
+            </div>
+
+            <div id="aba-dados" class="tab-content active">
+                <div class="form-grid">
+                    <div class="form-group span-2"><label>Nome</label><input id="Nome" required></div>
+                    <div class="form-group"><label>CPF</label><input id="CPF"></div>
+                    <div class="form-group"><label>RG</label><input id="RG"></div>
+                    <div class="form-group"><label>Data de nascimento</label><input id="DataNascimento" type="date" onchange="calcularIdade()"></div>
+                    <div class="form-group"><label>Idade</label><input id="Idade"></div>
+                    <div class="form-group"><label>Data de cadastro</label><input id="DataCadastro" type="date"></div>
+                    <div class="form-group"><label>Telefone</label><input id="Telefone"></div>
+                    <div class="form-group"><label>Endereço</label><input id="Endereço"></div>
+                    <div class="form-group"><label>Cidade</label><input id="Cidade"></div>
+                    <div class="form-group span-2"><label>Observação</label><textarea id="Observação"></textarea></div>
+                </div>
+            </div>
+
+            <div id="aba-anamnese" class="tab-content">
+                <h3>Sintomas / queixas</h3>
+                <div class="check-grid">
+                    <label class="check"><input type="checkbox" id="Dordecabeça"> Dor de cabeça</label>
+                    <label class="check"><input type="checkbox" id="AvPerto"> Dificuldade para visão de perto</label>
+                    <label class="check"><input type="checkbox" id="AvLonge"> Dificuldade para visão de longe</label>
+                    <label class="check"><input type="checkbox" id="Tontura"> Tontura</label>
+                    <label class="check"><input type="checkbox" id="DorOcular"> Dor ocular</label>
+                    <label class="check"><input type="checkbox" id="Fotofobia"> Fotofobia</label>
+                </div>
+            </div>
+
+            <div id="aba-historico" class="tab-content">
+                <h3>Histórico pessoal</h3>
+                <div class="check-grid">
+                    <label class="check"><input type="checkbox" id="Diabetes"> Diabetes</label>
+                    <label class="check"><input type="checkbox" id="Hipertensão"> Hipertensão</label>
+                    <label class="check"><input type="checkbox" id="Labirintite"> Labirintite</label>
+                    <label class="check"><input type="checkbox" id="Glaucoma"> Glaucoma</label>
+                    <label class="check"><input type="checkbox" id="Pterigio"> Pterígio</label>
+                    <label class="check"><input type="checkbox" id="CirurgiaNosOlhos"> Cirurgia nos olhos</label>
+                </div>
+                <h3>Histórico familiar</h3>
+                <div class="check-grid">
+                    <label class="check"><input type="checkbox" id="DiabetesFamilia"> Diabetes na família</label>
+                    <label class="check"><input type="checkbox" id="hipertensãoFamilia"> Hipertensão na família</label>
+                    <label class="check"><input type="checkbox" id="GlaucomaFamilia"> Glaucoma na família</label>
+                </div>
+            </div>
+
+            <div id="aba-anterior" class="tab-content">
+                <h3>Refração anterior</h3>
+                <div class="eye-table">
+                    <div></div><strong>OD</strong><strong>OE</strong>
+                    <label>Esférico</label><input id="EsfOdAnt"><input id="EsfOeAnt">
+                    <label>Cilíndrico</label><input id="CIlOdAnt"><input id="CilOeAnt">
+                    <label>Eixo</label><input id="EixOdAnt"><input id="EixOeAnt">
+                    <label>Adição</label><input id="AddAnt" class="span-2">
+                </div>
+            </div>
+
+            <div id="aba-atual" class="tab-content">
+                <h3>Refração atual</h3>
+                <div class="eye-table">
+                    <div></div><strong>OD</strong><strong>OE</strong>
+                    <label>Esférico</label><input id="EsfAtualOd"><input id="EsfAtualOe">
+                    <label>Cilíndrico</label><input id="CilAtualOd"><input id="CilAtualOe">
+                    <label>Eixo</label><input id="EixAtualOd"><input id="EixAtualOe">
+                    <label>Adição</label><input id="AddAtual" class="span-2">
+                </div>
+            </div>
+
+            <div id="aba-acuidade" class="tab-content">
+                <h3>Acuidade visual</h3>
+                <div class="eye-table">
+                    <div></div><strong>OD</strong><strong>OE</strong>
+                    <label>Acuidade longe</label><input id="AcuidadeLongeOd"><input id="AcuidadeLongeOe">
+                    <label>Acuidade perto</label><input id="AcuidadePertoOd"><input id="AcuidadePertoOe">
+                </div>
+                <h3>Teste bicromático</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>Verde</label><select id="Biocromoverde"><option value="false">Não</option><option value="true">Sim</option></select></div>
+                    <div class="form-group"><label>Vermelho</label><select id="Biocromovermelho"><option value="false">Não</option><option value="true">Sim</option></select></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button type="submit" class="btn-primary">Salvar cliente</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalFicha" class="modal">
+    <div class="modal-content large">
+        <div class="modal-header"><div><h2>Ficha do cliente</h2><p id="fichaSubtitulo"></p></div><button class="close" onclick="fecharFicha()">×</button></div>
+        <div id="dadosFicha"></div>
+        <div class="modal-footer"><button class="btn-secondary" onclick="fecharFicha()">Fechar</button><button class="btn-primary" onclick="editarPacienteAtual()">Editar cliente</button></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
