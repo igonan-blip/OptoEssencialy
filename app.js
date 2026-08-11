@@ -7,10 +7,19 @@ const CAMPOS = [
 ];
 
 // ==== CONEXÃO COM O BANCO ONLINE (Supabase) ====
-// Substitua pelos valores do seu projeto em Project Settings > API
 const SUPABASE_URL = "https://zahjchngsrgxmgbycgeh.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_abKSdfOVADKcvOFBMTNz1Q_lMxttXYx";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase = null;
+try{
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}catch(e){
+    console.error("Falha ao iniciar conexão com o Supabase:", e);
+}
+function bancoIndisponivel(){
+    if(supabase) return false;
+    alert("Não foi possível conectar ao banco online. Verifique sua internet e recarregue a página.");
+    return true;
+}
 
 let pacientes = [];
 let pacienteAtual = null;
@@ -20,6 +29,7 @@ function normalizar(v){ return String(v ?? "").toLowerCase().normalize("NFD").re
 function escapeHtml(v){ return String(v ?? "").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
 
 async function carregarPacientesRemoto(){
+    if(bancoIndisponivel()){ atualizarSistema(); return; }
     const { data, error } = await supabase.from("pacientes").select("dados").order("id",{ascending:false});
     if(error){ console.error(error); alert("Não foi possível carregar os dados do servidor. Verifique sua conexão ou as credenciais do Supabase."); return; }
     pacientes = (data||[]).map(r=>r.dados);
@@ -91,6 +101,7 @@ function preencherFormulario(p){
 
 async function salvarPaciente(event){
     event.preventDefault();
+    if(bancoIndisponivel()) return;
     const obj=lerFormulario();
     const { error } = await supabase.from("pacientes").upsert({ id: obj.IdCliente, dados: obj });
     if(error){ alert("Erro ao salvar no servidor: "+error.message); return; }
@@ -181,6 +192,7 @@ function editarPacienteAtual(){
 async function excluirPaciente(id){
     const p=pacientes.find(x=>Number(x.IdCliente)===Number(id)); if(!p)return;
     if(!confirm(`Deseja excluir ${p.Nome || "este cliente"}?`))return;
+    if(bancoIndisponivel()) return;
     const { error } = await supabase.from("pacientes").delete().eq("id", id);
     if(error){ alert("Erro ao excluir no servidor: "+error.message); return; }
     pacientes=pacientes.filter(x=>Number(x.IdCliente)!==Number(id));
@@ -200,6 +212,7 @@ function importarDados(event){
     const file=event.target.files[0];if(!file)return;
     const reader=new FileReader();
     reader.onload=async ()=>{try{
+        if(bancoIndisponivel()) return;
         const dados=JSON.parse(reader.result);
         if(!Array.isArray(dados))throw new Error();
         const linhas=dados.map(p=>({ id: Number(p.IdCliente)||Date.now(), dados:p }));
@@ -211,6 +224,7 @@ function importarDados(event){
 }
 async function limparTodosDados(){
     if(!confirm("ATENÇÃO: isso apagará todos os clientes do banco online. Continuar?"))return;
+    if(bancoIndisponivel()) return;
     const { error } = await supabase.from("pacientes").delete().gte("id", 0);
     if(error){ alert("Erro ao apagar no servidor: "+error.message); return; }
     pacientes=[];atualizarSistema();
@@ -218,5 +232,10 @@ async function limparTodosDados(){
 
 document.addEventListener("DOMContentLoaded",async ()=>{
     document.getElementById("DataCadastro").value=hojeISO();
-    await carregarPacientesRemoto();
+    try{
+        await carregarPacientesRemoto();
+    }catch(e){
+        console.error("Erro ao inicializar:", e);
+        atualizarSistema();
+    }
 });
