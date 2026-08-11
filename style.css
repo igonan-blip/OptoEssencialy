@@ -25,5 +25,37 @@ nav{display:flex;flex-direction:column;gap:5px}.menu-item{border:0;background:tr
 .refracao-add span:first-child{font-weight:700}
 @media(max-width:680px){.refracao-table{grid-template-columns:46px repeat(3,1fr);gap:6px 8px}.refracao-table strong{font-size:10px}.refracao-table span{font-size:12px;padding:5px 3px}}
 .exam-list{display:grid;gap:10px}.exam-card{border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;justify-content:space-between;align-items:center}.exam-card small{color:var(--muted)}.settings{display:flex;flex-direction:column;align-items:flex-start;gap:14px}.settings p{color:var(--muted);margin-bottom:5px}.file-button{display:inline-block}
+.mobile-nav{display:none}
 @media(max-width:900px){.sidebar{width:205px}.main{padding:22px}.cards{grid-template-columns:1fr}.form-grid,.check-grid,.ficha-grid{grid-template-columns:1fr}.span-2{grid-column:auto}.eye-table{grid-template-columns:120px 1fr 1fr}}
-@media(max-width:680px){.sidebar{display:none}.main{padding:16px}.header,.section-header{align-items:stretch;flex-direction:column}.search{width:100%}.patient-item{align-items:flex-start;flex-direction:column}.patient-actions{width:100%}.patient-actions button{flex:1}.modal-content{padding:18px}.eye-table{grid-template-columns:100px 1fr 1fr}}
+@media(max-width:680px){
+    .sidebar{display:none}
+    .main{padding:16px 16px 90px}
+    .header,.section-header{align-items:stretch;flex-direction:column}
+    .header h1{font-size:22px}
+    .search{width:100%}
+    .patient-item{align-items:flex-start;flex-direction:column}
+    .patient-actions{width:100%}
+    .patient-actions button{flex:1}
+    .modal-content{padding:18px}
+    .eye-table{grid-template-columns:100px 1fr 1fr}
+    .cards{gap:12px}
+    .card{padding:16px}
+    .card strong{font-size:20px}
+    .btn-primary,.btn-secondary,.btn-danger{padding:13px 16px}
+    .tabs{-webkit-overflow-scrolling:touch}
+    .modal{padding:0;align-items:flex-end}
+    .modal-content{max-height:94vh;border-radius:16px 16px 0 0;width:100%;max-width:100%}
+    .mobile-nav{
+        display:flex;
+        position:fixed;bottom:0;left:0;right:0;
+        background:#fff;border-top:1px solid var(--border);
+        padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+        z-index:5;
+    }
+    .mobile-nav .menu-item{
+        flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+        padding:8px 4px;font-size:20px;border-radius:10px;text-align:center;
+    }
+    .mobile-nav .menu-item span{font-size:11px;font-weight:600}
+    .mobile-nav .menu-item.active,.mobile-nav .menu-item:hover{background:#eff6ff;color:var(--blue)}
+}

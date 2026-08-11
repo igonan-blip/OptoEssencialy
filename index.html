@@ -19,8 +19,15 @@
             <button class="menu-item" data-tela="atendimentos" onclick="mostrarTela('atendimentos')">👁 <span>Exames</span></button>
             <button class="menu-item" data-tela="configuracoes" onclick="mostrarTela('configuracoes')">⚙ <span>Configurações</span></button>
         </nav>
-        <div class="sidebar-footer">Sistema local<br><small>Dados salvos neste navegador</small></div>
+        <div class="sidebar-footer">Sistema online<br><small>Dados salvos no banco (Supabase)</small></div>
     </aside>
+
+    <nav class="mobile-nav">
+        <button class="menu-item active" data-tela="inicio" onclick="mostrarTela('inicio')">⌂<span>Início</span></button>
+        <button class="menu-item" data-tela="pacientes" onclick="mostrarTela('pacientes')">👤<span>Clientes</span></button>
+        <button class="menu-item" data-tela="atendimentos" onclick="mostrarTela('atendimentos')">👁<span>Exames</span></button>
+        <button class="menu-item" data-tela="configuracoes" onclick="mostrarTela('configuracoes')">⚙<span>Config.</span></button>
+    </nav>
 
     <main class="main">
         <section id="telaInicio" class="screen">
@@ -69,7 +76,7 @@
             <header class="header"><div><h1>Configurações</h1><p>Opções do sistema local.</p></div></header>
             <section class="panel settings">
                 <h2>Armazenamento</h2>
-                <p>Os dados desta versão ficam no armazenamento local do navegador.</p>
+                <p>Os dados desta versão ficam salvos em um banco de dados online (Supabase), acessível de qualquer computador ou celular conectado.</p>
                 <button class="btn-secondary" onclick="exportarDados()">Exportar backup JSON</button>
                 <label class="file-button btn-secondary">Importar backup JSON<input type="file" accept=".json" onchange="importarDados(event)" hidden></label>
                 <button class="btn-danger" onclick="limparTodosDados()">Apagar todos os dados</button>
@@ -195,6 +202,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 </body>
 </html>
